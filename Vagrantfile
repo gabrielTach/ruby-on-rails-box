@@ -40,7 +40,7 @@ Vagrant.configure("2") do |config|
 
 	# For the sync folder use SMB on windows, as it will allow the creation of symlinks
 	if OS.windows? then
-		config.vm.synced_folder '.', '/vagrant', type: 'smb', mount_options: ["mfsymlinks,dir_mode=0775,file_mode=0664"]
+		config.vm.synced_folder './vagrant', '/vagrant', type: 'smb', mount_options: ["mfsymlinks,dir_mode=0775,file_mode=0664"]
 	else
   	config.vm.synced_folder "./vagrant", "/vagrant"
 	end
