@@ -30,6 +30,8 @@ Vagrant.configure("2") do |config|
   config.vm.provider "virtualbox" do |vb|
     vb.customize [ "modifyvm", :id, "--uart1", "0x3F8", "4" ]
     vb.customize [ "modifyvm", :id, "--uartmode1", "file", File::NULL ]
+		# Less than 1 GB and sassc will not compile
+		vb.memory = "2048"
   end
 
   # Create a forwarded port mapping which allows access to a specific port
@@ -44,12 +46,6 @@ Vagrant.configure("2") do |config|
 	else
   	config.vm.synced_folder "./vagrant", "/vagrant"
 	end
-
-  # config.vm.provider "virtualbox" do |vb|
-  #
-  #   # Customize the amount of memory on the VM:
-  #   vb.memory = "1024"
-  # end
 
   config.vm.provision "shell", inline: <<-'SHELL'
     # Yarn depository
