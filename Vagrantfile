@@ -40,11 +40,14 @@ Vagrant.configure("2") do |config|
   # Do not forget to run rails server -b 0.0.0.0
   config.vm.network "forwarded_port", guest: 3000, host: 3000
 
+	# Forward inkbuckets' forwarded_port
+	config.vm.network "forwarded_port", guest: 9000, host: 9000
+
 	# For the sync folder use SMB on windows, as it will allow the creation of symlinks
 	if OS.windows? then
 		config.vm.synced_folder './vagrant', '/vagrant', type: 'smb', mount_options: ["mfsymlinks,dir_mode=0775,file_mode=0664"]
 	else
-  	config.vm.synced_folder "./vagrant", "/vagrant"
+		config.vm.synced_folder "./vagrant", "/vagrant"
 	end
 
   config.vm.provision "shell", inline: <<-'SHELL'
@@ -61,6 +64,14 @@ Vagrant.configure("2") do |config|
 
     # We need git and curl
     sudo apt-get install -y git curl gnupg2
+
+		# Install mail catcher
+		wget -nv -P /tmp/ -O inbucket.deb https://github.com/inbucket/inbucket/releases/download/v2.1.0/inbucket_2.1.0_linux_amd64.deb
+		sudo dpkg -i /tmp/inbucket.deb
+		sudo apt install -f
+		sudo systemctl enable inbucket
+		sudo systemctl start inbucket
+
 
     gpg2 --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB
     curl -sSL https://get.rvm.io | bash -s stable --rails

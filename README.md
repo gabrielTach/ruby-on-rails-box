@@ -5,9 +5,16 @@ how to develop in ruby and Ruby on Rails.
 # What's in the box?
 * Ruby
 * Ruby on Rails
+
+## Databases
 * MySQL
 * sqlite3
+
+## Caching system
 * memcached
+
+## Mail catcher
+* inbucket
 
 ## How to use it
 ```
