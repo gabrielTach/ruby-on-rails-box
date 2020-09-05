@@ -47,7 +47,18 @@ Vagrant.configure("2") do |config|
 	if OS.windows? then
 		config.vm.synced_folder './vagrant', '/vagrant', type: 'smb', mount_options: ["mfsymlinks,dir_mode=0775,file_mode=0664"]
 	else
-		config.vm.synced_folder "./vagrant", "/vagrant"
+		# Fsnotify will forward filesystem change notifications to the VM
+		# Thus there will be no more need to modify config files in rails
+		# https://github.com/adrienkohlbecker/vagrant-fsnotify
+		config.vagrant.plugins = ["vagrant-fsnotify"]
+
+		config.vm.synced_folder "./vagrant", "/vagrant", fsnotify: true
+
+		# Run vagrant fsnotify everytime the box is up
+		config.trigger.after :up do |t|
+	    t.name = "vagrant-fsnotify"
+	    t.run = { inline: "vagrant fsnotify" }
+	  end
 	end
 
   config.vm.provision "shell", inline: <<-'SHELL'
@@ -59,8 +70,12 @@ Vagrant.configure("2") do |config|
 
     # Install all databases and other servers
     sudo apt-get install -y mysql-server libmysqlclient-dev libssl-dev
+    sudo apt-get install -y postgresql  libpq-dev
     sudo apt-get install -y sqlite3 libsqlite3-dev
     sudo apt-get install -y memcached
+
+		# Add vagrant role
+		sudo -u postgres createuser vagrant -s && sudo -u postgres createdb vagrant
 
     # We need git and curl
     sudo apt-get install -y git curl gnupg2
@@ -77,11 +92,8 @@ Vagrant.configure("2") do |config|
     curl -sSL https://get.rvm.io | bash -s stable --rails
 
     # Install Ruby
-
     source /usr/local/rvm/scripts/rvm
-
   	sudo usermod -a -G rvm vagrant
-
     gem install
 
     # Install Yarn
